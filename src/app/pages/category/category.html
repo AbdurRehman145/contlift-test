@@ -1,0 +1,45 @@
+@if (data(); as data) {
+  <section class="hero hero--compact">
+    <div class="container">
+      <p class="eyebrow">Category</p>
+      <h1 class="hero__title">{{ data.category.name }}</h1>
+      @if (data.category.description) {
+        <p class="hero__lead">{{ data.category.description }}</p>
+      }
+      <p class="meta">{{ data.posts.length }} {{ data.posts.length === 1 ? 'post' : 'posts' }}</p>
+
+      <div class="toolbar">
+        <app-category-nav [categories]="data.categories" [activeSlug]="data.category.slug" />
+      </div>
+    </div>
+  </section>
+
+  <section class="container section" aria-labelledby="category-posts-heading">
+    <h2 id="category-posts-heading" class="visually-hidden">Posts in {{ data.category.name }}</h2>
+    @if (data.posts.length) {
+      <div class="post-grid">
+        @for (post of data.posts; track post.id) {
+          <app-post-card [post]="post" />
+        }
+      </div>
+    } @else {
+      <div class="state">
+        <h2>Nothing here yet</h2>
+        <p>No posts have been published in {{ data.category.name }} so far.</p>
+      </div>
+    }
+  </section>
+} @else if (page().status === 404) {
+  <div class="container state state--page">
+    <p class="eyebrow">404</p>
+    <h1>Category not found</h1>
+    <p>There's no category at this address.</p>
+    <a class="button" routerLink="/categories">Browse categories</a>
+  </div>
+} @else {
+  <div class="container state state--page">
+    <h1>We couldn't load this category</h1>
+    <p>Something went wrong while talking to the server. Please try again in a moment.</p>
+    <a class="button" routerLink="/">Back to all posts</a>
+  </div>
+}

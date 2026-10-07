@@ -1,0 +1,48 @@
+<section class="hero hero--compact">
+  <div class="container">
+    <p class="eyebrow">Browse</p>
+    <h1 class="hero__title">Categories</h1>
+    <p class="hero__lead">Every topic on the blog, with the number of posts in each.</p>
+  </div>
+</section>
+
+<section class="container section">
+  @if (categories().value; as list) {
+    @if (list.length) {
+      <ul class="category-grid">
+        @for (category of list; track category.slug) {
+          <li>
+            <a class="category-card" [routerLink]="['/blog/category', category.slug]">
+              <span class="category-card__media">
+                @if (category.coverImage) {
+                  <img [src]="category.coverImage" alt="" loading="lazy" decoding="async" />
+                } @else {
+                  <span class="category-card__initial">{{ category.name.charAt(0) }}</span>
+                }
+              </span>
+              <span class="category-card__body">
+                <span class="category-card__name">{{ category.name }}</span>
+                @if (category.description) {
+                  <span class="category-card__description">{{ category.description }}</span>
+                }
+                <span class="meta">
+                  {{ category.postCount ?? 0 }} {{ category.postCount === 1 ? 'post' : 'posts' }}
+                </span>
+              </span>
+            </a>
+          </li>
+        }
+      </ul>
+    } @else {
+      <div class="state">
+        <h2>No categories yet</h2>
+        <p>Categories are created automatically when you publish a post with them.</p>
+      </div>
+    }
+  } @else {
+    <div class="state">
+      <h2>We couldn't load the categories</h2>
+      <p>Something went wrong while talking to the server. Please try again in a moment.</p>
+    </div>
+  }
+</section>

@@ -1,0 +1,35 @@
+<article class="post-card" [class.post-card--featured]="featured()">
+  <a class="post-card__media" [routerLink]="['/blog', post().slug]" tabindex="-1" aria-hidden="true">
+    @if (cover(); as src) {
+      <img [src]="src" alt="" loading="lazy" decoding="async" />
+    } @else {
+      <span class="post-card__placeholder">{{ placeholderLabel() }}</span>
+    }
+  </a>
+
+  <div class="post-card__body">
+    @if (post().categories?.length) {
+      <div class="chips">
+        @for (category of post().categories; track category.slug) {
+          <a class="chip" [routerLink]="['/blog/category', category.slug]">{{ category.name }}</a>
+        }
+      </div>
+    }
+
+    <h3 class="post-card__title">
+      <a [routerLink]="['/blog', post().slug]">{{ post().title }}</a>
+    </h3>
+
+    @if (excerpt()) {
+      <p class="post-card__excerpt">{{ excerpt() }}</p>
+    }
+
+    <p class="meta">
+      @if (post().author?.name; as author) {
+        <span>{{ author }}</span>
+      }
+      <time [attr.datetime]="date()">{{ date() | date: 'mediumDate' : 'UTC' }}</time>
+      <span>{{ minutes() }} min read</span>
+    </p>
+  </div>
+</article>

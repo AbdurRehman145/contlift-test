@@ -1,0 +1,88 @@
+import "./contlify.config";
+import type { Express } from "express";
+import {
+  createContlifyHandler,
+  createNodeMiddleware,
+  getAllPosts,
+  getCategories,
+  getPostBySlug,
+  getPostsByCategory,
+  getTags,
+  getPostsByTag,
+} from "contlify";
+
+const contlifyHandler = createContlifyHandler();
+
+/**
+ * Mounts Contlify Publishing API & Public Read Routes onto the Angular SSR Express app.
+ * Call this in server.ts before Angular's catch-all HTML rendering route.
+ *
+ * @example
+ * ```ts
+ * import { mountContlify } from "./server.contlify";
+ * mountContlify(app);
+ * ```
+ */
+export function mountContlify(app: Express): void {
+  // Public Read Routes for Client & SSR components
+  app.get("/api/contlify/v1/posts", async (_req, res) => {
+    try {
+      const posts = await getAllPosts();
+      res.json({ success: true, data: posts });
+    } catch (e: any) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
+  app.get("/api/contlify/v1/posts/:slug", async (req, res) => {
+    try {
+      const post = await getPostBySlug(req.params.slug);
+      if (!post) {
+        res.status(404).json({ success: false, error: "Post not found" });
+        return;
+      }
+      res.json({ success: true, data: post });
+    } catch (e: any) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
+  app.get("/api/contlify/v1/categories", async (_req, res) => {
+    try {
+      const categories = await getCategories();
+      res.json({ success: true, data: categories });
+    } catch (e: any) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
+  app.get("/api/contlify/v1/categories/:slug", async (req, res) => {
+    try {
+      const posts = await getPostsByCategory(req.params.slug);
+      res.json({ success: true, data: posts });
+    } catch (e: any) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
+  app.get("/api/contlify/v1/tags", async (_req, res) => {
+    try {
+      const tags = await getTags();
+      res.json({ success: true, data: tags });
+    } catch (e: any) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
+  app.get("/api/contlify/v1/tags/:slug", async (req, res) => {
+    try {
+      const posts = await getPostsByTag(req.params.slug);
+      res.json({ success: true, data: posts });
+    } catch (e: any) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
+  // Publishing Gateway (POST /posts, PATCH /posts/:id, GET /validate, etc.)
+  app.use("/api/contlify/v1", createNodeMiddleware(contlifyHandler));
+}

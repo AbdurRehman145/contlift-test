@@ -1,0 +1,38 @@
+@if (data(); as data) {
+  <section class="hero hero--compact">
+    <div class="container">
+      <p class="eyebrow">Tag</p>
+      <h1 class="hero__title">#{{ data.tag.name }}</h1>
+      <p class="meta">{{ data.posts.length }} {{ data.posts.length === 1 ? 'post' : 'posts' }}</p>
+    </div>
+  </section>
+
+  <section class="container section" aria-labelledby="tag-posts-heading">
+    <h2 id="tag-posts-heading" class="visually-hidden">Posts tagged {{ data.tag.name }}</h2>
+    @if (data.posts.length) {
+      <div class="post-grid">
+        @for (post of data.posts; track post.id) {
+          <app-post-card [post]="post" />
+        }
+      </div>
+    } @else {
+      <div class="state">
+        <h2>Nothing here yet</h2>
+        <p>No published posts use this tag.</p>
+      </div>
+    }
+  </section>
+} @else if (page().status === 404) {
+  <div class="container state state--page">
+    <p class="eyebrow">404</p>
+    <h1>Tag not found</h1>
+    <p>There's no tag at this address.</p>
+    <a class="button" routerLink="/">Back to all posts</a>
+  </div>
+} @else {
+  <div class="container state state--page">
+    <h1>We couldn't load this tag</h1>
+    <p>Something went wrong while talking to the server. Please try again in a moment.</p>
+    <a class="button" routerLink="/">Back to all posts</a>
+  </div>
+}

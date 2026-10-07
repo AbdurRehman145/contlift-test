@@ -1,0 +1,26 @@
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="nav-progress" [class.nav-progress--active]="navigating()" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="brand" routerLink="/">
+      <span class="brand__mark" aria-hidden="true">{{ site.name.charAt(0) }}</span>
+      {{ site.name }}
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+      <a routerLink="/categories" routerLinkActive="is-active">Categories</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <router-outlet />
+</main>
+
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <span>© {{ year }} {{ site.name }}</span>
+    <span>Built with Angular, Supabase &amp; Contlify</span>
+  </div>
+</footer>

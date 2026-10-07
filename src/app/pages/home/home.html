@@ -1,0 +1,53 @@
+<section class="hero">
+  <div class="container">
+    <p class="eyebrow">The blog</p>
+    <h1 class="hero__title">{{ site.name }}</h1>
+    <p class="hero__lead">{{ site.tagline }}</p>
+
+    <div class="toolbar">
+      @if (categories().value; as categoryList) {
+        <app-category-nav [categories]="categoryList" />
+      }
+      <label class="search">
+        <span class="visually-hidden">Search posts</span>
+        <input
+          #search
+          type="search"
+          placeholder="Search posts…"
+          [value]="query()"
+          (input)="query.set(search.value)"
+        />
+      </label>
+    </div>
+  </div>
+</section>
+
+<section class="container section" aria-labelledby="latest-heading">
+  <h2 id="latest-heading" class="visually-hidden">Latest posts</h2>
+
+  @if (!posts().value) {
+    <div class="state">
+      <h2>We couldn't load the posts</h2>
+      <p>Something went wrong while talking to the server. Please try again in a moment.</p>
+    </div>
+  } @else if (!posts().value?.length) {
+    <div class="state">
+      <h2>No posts yet</h2>
+      <p>Publish your first article through the Contlify API and it will show up here.</p>
+    </div>
+  } @else if (!filtered().length) {
+    <div class="state">
+      <h2>No matches</h2>
+      <p>Nothing matches “{{ query() }}”. Try a different word.</p>
+    </div>
+  } @else {
+    @if (featured(); as post) {
+      <app-post-card [post]="post" [featured]="true" />
+    }
+    <div class="post-grid">
+      @for (post of rest(); track post.id) {
+        <app-post-card [post]="post" />
+      }
+    </div>
+  }
+</section>
