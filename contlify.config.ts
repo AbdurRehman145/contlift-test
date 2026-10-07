@@ -20,11 +20,22 @@ import { defineConfig } from "contlify";
 
 // Lazy Supabase client factory — safely handles build time when secrets are not yet defined.
 let _supabaseClient: ReturnType<typeof createClient> | null = null;
+let _warnedMissingEnv = false;
 
 function getSupabaseClient() {
   const url = process.env["SUPABASE_URL"];
   const key = process.env["SUPABASE_SECRET_KEY"] || process.env["SUPABASE_SERVICE_ROLE_KEY"] || process.env["SUPABASE_ANON_KEY"];
-  if (!url || !key) return null;
+  if (!url || !key) {
+    // Contlify's read queries quietly return [] without a client, so say why.
+    if (!_warnedMissingEnv) {
+      _warnedMissingEnv = true;
+      console.warn(
+        "[contlify] SUPABASE_URL and SUPABASE_SECRET_KEY are not set, so no posts can be loaded. " +
+          "Set them in your host's environment variables (on Vercel: Settings → Environment Variables), then redeploy.",
+      );
+    }
+    return null;
+  }
   if (!_supabaseClient) {
     _supabaseClient = createClient(url, key);
   }

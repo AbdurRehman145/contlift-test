@@ -10,8 +10,27 @@ import { mountContlify } from '../server.contlify';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
+/**
+ * Hostnames Angular will render for (SSRF protection), on top of
+ * `security.allowedHosts` in angular.json: the domains Vercel assigns to this
+ * deployment, plus any listed in NG_ALLOWED_HOSTS (comma-separated, e.g. a
+ * custom domain). Passing `allowedHosts` here replaces Angular's own
+ * NG_ALLOWED_HOSTS lookup, so it is read again below.
+ */
+function deploymentHosts(): string[] {
+  const env = process.env;
+  return [
+    env['VERCEL_PROJECT_PRODUCTION_URL'],
+    env['VERCEL_BRANCH_URL'],
+    env['VERCEL_URL'],
+    ...(env['NG_ALLOWED_HOSTS'] ?? '').split(','),
+  ]
+    .map((host) => host?.trim())
+    .filter((host): host is string => !!host);
+}
+
 const app = express();
-const angularApp = new AngularNodeAppEngine();
+const angularApp = new AngularNodeAppEngine({ allowedHosts: deploymentHosts() });
 
 /**
  * Contlify API: public read routes used by the blog pages, plus the
@@ -59,6 +78,7 @@ if (isMainModule(import.meta.url) || process.env['pm_id']) {
 }
 
 /**
- * Request handler used by the Angular CLI (for dev-server and during build) or Firebase Cloud Functions.
+ * Request handler used by the Angular CLI (for dev-server and during build),
+ * Firebase Cloud Functions, and the Vercel function in api/index.mjs.
  */
 export const reqHandler = createNodeRequestHandler(app);
